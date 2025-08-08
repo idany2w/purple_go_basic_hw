@@ -7,9 +7,9 @@ const USD2RUB = 0.8
 const EUR2RUB = USD2RUB / USD2EUR
 
 func main() {
-	eurInput := getUserInput()
-	rub = convert(eurInput, "EUR", "RUB")
-	fmt.Printf("%.2f EUR is %.2f RUB\n", eurInput, rub)
+	userInput := getUserInput()
+	rub := convert(userInput, "EUR", "RUB")
+	fmt.Printf("%.2f EUR is %.2f RUB\n", userInput, rub)
 }
 
 func getUserInput() float64 {
