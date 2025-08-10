@@ -9,6 +9,36 @@ const USD2EUR = 0.86
 const USD2RUB = 90.0
 const EUR2RUB = USD2RUB / USD2EUR
 
+// Константы для валют
+const (
+	USD = "USD"
+	EUR = "EUR"
+	RUB = "RUB"
+)
+
+// Map для конвертации валют
+var conversionRates = map[string]map[string]float64{
+	USD: {
+		EUR: USD2EUR,
+		RUB: USD2RUB,
+	},
+	EUR: {
+		USD: 1 / USD2EUR,
+		RUB: EUR2RUB,
+	},
+	RUB: {
+		USD: 1 / USD2RUB,
+		EUR: 1 / EUR2RUB,
+	},
+}
+
+// Map для отображения доступных валют
+var availableCurrencies = map[string][]string{
+	USD: {EUR, RUB},
+	EUR: {USD, RUB},
+	RUB: {USD, EUR},
+}
+
 func main() {
 	for {
 		processConverting()
@@ -47,7 +77,7 @@ func askFromCurrency() string {
 	fmt.Println("Введите валюту из которой конвертируем: (USD, EUR, RUB)")
 	fmt.Scan(&fromCurrency)
 
-	if fromCurrency != "USD" && fromCurrency != "EUR" && fromCurrency != "RUB" {
+	if _, exists := availableCurrencies[fromCurrency]; !exists {
 		fmt.Println("Неверная валюта")
 		return askFromCurrency()
 	}
@@ -60,20 +90,15 @@ func askToCurrency(fromCurrency string) string {
 
 	fmt.Print("Введите валюту в которую конвертируем:")
 
-	switch fromCurrency {
-	case "USD":
-		fmt.Println("EUR, RUB")
-	case "EUR":
-		fmt.Println("USD, RUB")
-	case "RUB":
-		fmt.Println("USD, EUR")
-	default:
+	if available, exists := availableCurrencies[fromCurrency]; exists {
+		fmt.Println(available[0] + ", " + available[1])
+	} else {
 		fmt.Println("Неверная валюта")
 	}
 
 	fmt.Scan(&toCurrency)
 
-	if toCurrency != "USD" && toCurrency != "EUR" && toCurrency != "RUB" {
+	if _, exists := availableCurrencies[toCurrency]; !exists {
 		fmt.Println("Неверная валюта")
 		return askToCurrency(fromCurrency)
 	}
@@ -100,38 +125,11 @@ func askAmount() float64 {
 }
 
 func convert(amount float64, fromCurrency string, toCurrency string) (float64, error) {
-	var result float64
-
-	if fromCurrency == "USD" {
-		switch toCurrency {
-		case "EUR":
-			result = amount * USD2EUR
-		case "RUB":
-			result = amount * USD2RUB
+	if rates, exists := conversionRates[fromCurrency]; exists {
+		if rate, rateExists := rates[toCurrency]; rateExists {
+			return amount * rate, nil
 		}
 	}
 
-	if fromCurrency == "EUR" {
-		switch toCurrency {
-		case "USD":
-			result = amount / USD2EUR
-		case "RUB":
-			result = amount * EUR2RUB
-		}
-	}
-
-	if fromCurrency == "RUB" {
-		switch toCurrency {
-		case "USD":
-			result = amount / USD2RUB
-		case "EUR":
-			result = amount / EUR2RUB
-		}
-	}
-
-	if result == 0 {
-		return 0, errors.New("invalid currency")
-	}
-
-	return result, nil
+	return 0, errors.New("invalid currency")
 }
