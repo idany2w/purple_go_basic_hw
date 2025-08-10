@@ -94,19 +94,20 @@ func askNumbers() ([]float64, error) {
 	return numbers, nil
 }
 
+// Map для отображения операций на соответствующие функции
+var operationFunctions = map[string]func([]float64) float64{
+	"avg": avg,
+	"sum": sum,
+	"med": med,
+}
+
 func doOperation(operation string, numbers []float64) (float64, error) {
-	var result float64
-	switch operation {
-	case "avg":
-		result = avg(numbers)
-	case "sum":
-		result = sum(numbers)
-	case "med":
-		result = med(numbers)
-	default:
+	operationFunc, exists := operationFunctions[operation]
+	if !exists {
 		return 0, errors.New("неизвестная операция")
 	}
 
+	result := operationFunc(numbers)
 	return result, nil
 }
 
