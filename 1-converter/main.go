@@ -16,32 +16,36 @@ const (
 	RUB = "RUB"
 )
 
-// Map для конвертации валют
-var conversionRates = map[string]map[string]float64{
-	USD: {
-		EUR: USD2EUR,
-		RUB: USD2RUB,
-	},
-	EUR: {
-		USD: 1 / USD2EUR,
-		RUB: EUR2RUB,
-	},
-	RUB: {
-		USD: 1 / USD2RUB,
-		EUR: 1 / EUR2RUB,
-	},
-}
-
-// Map для отображения доступных валют
-var availableCurrencies = map[string][]string{
-	USD: {EUR, RUB},
-	EUR: {USD, RUB},
-	RUB: {USD, EUR},
-}
-
 func main() {
+	// Map для конвертации валют
+	var conversionRates = map[string]map[string]float64{
+		USD: {
+			EUR: USD2EUR,
+			RUB: USD2RUB,
+		},
+		EUR: {
+			USD: 1 / USD2EUR,
+			RUB: EUR2RUB,
+		},
+		RUB: {
+			USD: 1 / USD2RUB,
+			EUR: 1 / EUR2RUB,
+		},
+	}
+
+	conversionRatesPointer := &conversionRates
+
+	// Map для отображения доступных валют
+	var availableCurrencies = map[string][]string{
+		USD: {EUR, RUB},
+		EUR: {USD, RUB},
+		RUB: {USD, EUR},
+	}
+
+	availableCurrenciesPointer := &availableCurrencies
+
 	for {
-		processConverting()
+		processConverting(conversionRatesPointer, availableCurrenciesPointer)
 
 		fmt.Println("Хотите попробовать еще раз? (y/n)")
 		var continueInput string
@@ -53,9 +57,9 @@ func main() {
 	}
 }
 
-func processConverting() {
-	amount, fromCurrency, toCurrency := getUserInput()
-	result, err := convert(amount, fromCurrency, toCurrency)
+func processConverting(conversionRates *map[string]map[string]float64, currencies *map[string][]string) {
+	amount, fromCurrency, toCurrency := getUserInput(currencies)
+	result, err := convert(amount, fromCurrency, toCurrency, conversionRates)
 
 	if err != nil {
 		fmt.Println("Неверная валюта")
@@ -65,30 +69,33 @@ func processConverting() {
 	fmt.Printf("%.2f %s is %.2f %s\n", amount, fromCurrency, result, toCurrency)
 }
 
-func getUserInput() (float64, string, string) {
-	fromCurrency := askFromCurrency()
+func getUserInput(currencies *map[string][]string) (float64, string, string) {
+	fromCurrency := askFromCurrency(currencies)
 	amount := askAmount()
-	toCurrency := askToCurrency(fromCurrency)
+	toCurrency := askToCurrency(fromCurrency, currencies)
 	return amount, fromCurrency, toCurrency
 }
 
-func askFromCurrency() string {
+func askFromCurrency(currencies *map[string][]string) string {
 	var fromCurrency string
 	fmt.Println("Введите валюту из которой конвертируем: (USD, EUR, RUB)")
 	fmt.Scan(&fromCurrency)
+	availableCurrencies := *currencies
 
 	if _, exists := availableCurrencies[fromCurrency]; !exists {
 		fmt.Println("Неверная валюта")
-		return askFromCurrency()
+		return askFromCurrency(currencies)
 	}
 
 	return fromCurrency
 }
 
-func askToCurrency(fromCurrency string) string {
+func askToCurrency(fromCurrency string, currencies *map[string][]string) string {
 	var toCurrency string
 
 	fmt.Print("Введите валюту в которую конвертируем:")
+
+	availableCurrencies := *currencies
 
 	if available, exists := availableCurrencies[fromCurrency]; exists {
 		fmt.Println(available[0] + ", " + available[1])
@@ -100,12 +107,12 @@ func askToCurrency(fromCurrency string) string {
 
 	if _, exists := availableCurrencies[toCurrency]; !exists {
 		fmt.Println("Неверная валюта")
-		return askToCurrency(fromCurrency)
+		return askToCurrency(fromCurrency, currencies)
 	}
 
 	if fromCurrency == toCurrency {
 		fmt.Println("Валюты не могут быть одинаковыми")
-		return askToCurrency(fromCurrency)
+		return askToCurrency(fromCurrency, currencies)
 	}
 
 	return toCurrency
@@ -124,8 +131,10 @@ func askAmount() float64 {
 	return amount
 }
 
-func convert(amount float64, fromCurrency string, toCurrency string) (float64, error) {
-	if rates, exists := conversionRates[fromCurrency]; exists {
+func convert(amount float64, fromCurrency string, toCurrency string, conversionRates *map[string]map[string]float64) (float64, error) {
+	availableConversionRates := *conversionRates
+
+	if rates, exists := availableConversionRates[fromCurrency]; exists {
 		if rate, rateExists := rates[toCurrency]; rateExists {
 			return amount * rate, nil
 		}
