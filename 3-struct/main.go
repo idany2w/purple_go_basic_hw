@@ -1,33 +1,11 @@
 package main
 
-import "time"
-
-type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
-}
-
-func newBin(id string, private bool, name string) *Bin {
-	return &Bin{
-		id,
-		private,
-		time.Now(),
-		name,
-	}
-}
-
-type BinList struct {
-	bins []Bin
-}
-
-func newBinList(bins []Bin) *BinList {
-	return &BinList{
-		bins,
-	}
-}
+import (
+	"demo/struct/src/bins"
+	"fmt"
+)
 
 func main() {
-
+	bin := bins.NewBin("id", false, "name")
+	fmt.Println(*bin)
 }
