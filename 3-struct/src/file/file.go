@@ -16,6 +16,6 @@ func ReadFIle(name string) ([]byte, error) {
 }
 
 func IsJsonFileName(name string) bool {
-	isJson, _ := regexp.MatchString("/.json$/", name)
+	isJson, _ := regexp.MatchString(`\.json$`, name)
 	return isJson
 }
