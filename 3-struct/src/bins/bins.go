@@ -3,10 +3,10 @@ package bins
 import "time"
 
 type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
+	Id        string    `json:"id"`
+	Private   bool      `json:"private"`
+	CreatedAt time.Time `json:"createdAt"`
+	Name      string    `json:"name"`
 }
 
 func NewBin(id string, private bool, name string) *Bin {
@@ -19,7 +19,7 @@ func NewBin(id string, private bool, name string) *Bin {
 }
 
 type BinList struct {
-	bins []Bin
+	Bins []Bin `json:"bins"`
 }
 
 func NewBinList(bins []Bin) *BinList {
