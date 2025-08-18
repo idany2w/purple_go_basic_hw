@@ -94,7 +94,7 @@ func askNumbers() ([]float64, error) {
 	return numbers, nil
 }
 
-// Map для отображения операций на соответствующие функции
+// already done
 var operationFunctions = map[string]func([]float64) float64{
 	"avg": avg,
 	"sum": sum,
