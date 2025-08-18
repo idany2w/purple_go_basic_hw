@@ -3,12 +3,28 @@ package storage
 import (
 	"demo/struct/src/bins"
 	"encoding/json"
-	"os"
 )
 
-func ReadBinList(name string) (bins.BinList, error) {
+type StorageProviderInterface interface {
+	Read() ([]byte, error)
+	Save(data []byte) error
+}
+
+type Storage struct {
+	bl       bins.BinList
+	provider StorageProviderInterface
+}
+
+func NewStorage(provider StorageProviderInterface) *Storage {
+	return &Storage{
+		bl:       bins.BinList{},
+		provider: provider,
+	}
+}
+
+func (s *Storage) Read() (bins.BinList, error) {
 	var bl bins.BinList
-	data, err := readFileData(name)
+	data, err := s.provider.Read()
 
 	if err != nil {
 		return bl, err
@@ -23,40 +39,16 @@ func ReadBinList(name string) (bins.BinList, error) {
 	return bl, nil
 }
 
-func SaveBinList(bl bins.BinList, name string) error {
-	data, err := json.Marshal(bl)
+func (s *Storage) SaveBinList() error {
+	data, err := json.Marshal(s.bl)
 
 	if err != nil {
 		return err
 	}
 
-	return saveDataToFile(data, name)
+	return s.provider.Save(data)
 }
 
-func saveDataToFile(data []byte, fileName string) error {
-	file, err := os.Create(fileName)
-
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	_, err = file.Write(data)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func readFileData(fileName string) ([]byte, error) {
-	data, err := os.ReadFile(fileName)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+func (s *Storage) AddBin(bin bins.Bin) {
+	s.bl.Bins = append(s.bl.Bins, bin)
 }
