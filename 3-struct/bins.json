@@ -1,0 +1,25 @@
+{
+	"updatedAt": "2025-08-19T03:12:44.072794772+03:00",
+	"binList": {
+		"bins": [
+			{
+				"id": "68a3c7ef43b1c97be9220366",
+				"private": true,
+				"createdAt": "2025-08-19T00:40:15.361Z",
+				"name": "my bin"
+			},
+			{
+				"id": "68a3c7f243b1c97be922036c",
+				"private": true,
+				"createdAt": "2025-08-19T00:40:18.715Z",
+				"name": "my bin 2"
+			},
+			{
+				"id": "68a3c7f5ae596e708fcdb957",
+				"private": true,
+				"createdAt": "2025-08-19T00:40:21.139Z",
+				"name": "my bin 3"
+			}
+		]
+	}
+}
