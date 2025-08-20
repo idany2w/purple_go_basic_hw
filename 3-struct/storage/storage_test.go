@@ -2,12 +2,17 @@ package storage
 
 import (
 	"demo/go-json/bins"
+	"demo/go-json/testutils"
 	"os"
 	"testing"
 	"time"
 )
 
 func TestNewStorage(t *testing.T) {
+	// Создаем менеджер очистки
+	cleanup := testutils.NewTestCleanupManager()
+	defer cleanup.Cleanup()
+
 	// Создаем временный файл bins.json для тестирования
 	tempFile := "bins.json"
 	jsonContent := `{
@@ -30,11 +35,10 @@ func TestNewStorage(t *testing.T) {
 		}
 	}`
 
-	err := os.WriteFile(tempFile, []byte(jsonContent), 0644)
+	err := cleanup.CreateTempFile(jsonContent, tempFile)
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)
 	}
-	defer os.Remove(tempFile)
 
 	storage := NewStorage()
 
