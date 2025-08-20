@@ -40,6 +40,10 @@ func NewList() *BinList {
 }
 
 func (binList *BinList) AddToList(bin *Bin) {
+	if bin == nil {
+		panic("bin cannot be nil")
+	}
+
 	binList.Bins = append(binList.Bins, *bin)
 }
 

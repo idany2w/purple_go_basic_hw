@@ -21,6 +21,10 @@ type CreateBinResponse struct {
 const apiUrl = "https://api.jsonbin.io/v3/b"
 
 func NewApi(config *config.Config) *Api {
+	if config == nil {
+		panic("config cannot be nil")
+	}
+
 	return &Api{
 		config: *config,
 	}

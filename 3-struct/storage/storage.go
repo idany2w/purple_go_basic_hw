@@ -35,6 +35,10 @@ func NewStorage() *Storage {
 }
 
 func (storage *Storage) SetList(binList *bins.BinList) (bool, error) {
+	if binList == nil {
+		panic("binList cannot be nil")
+	}
+
 	storage.BinList = *binList
 	data, err := json.MarshalIndent(storage, "", "\t")
 
