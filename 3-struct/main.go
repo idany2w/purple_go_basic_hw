@@ -1,29 +1,49 @@
 package main
 
 import (
-	"demo/struct/src/bins"
-	"demo/struct/src/file"
-	"demo/struct/src/storage"
+	"demo/go-json/api"
+	"demo/go-json/config"
+	"demo/go-json/storage"
+	"flag"
 	"fmt"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	fp, err := file.NewFileProvider("data.json")
+	godotenv.Load()
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	createOperation := flag.Bool("create", false, "Создание бина")
+	updateOperation := flag.Bool("update", false, "Обновление бина")
+	getOperation := flag.Bool("get", false, "Получение бина")
+	deleteOperation := flag.Bool("delete", false, "Удаление бина")
+	listOperation := flag.Bool("list", false, "Список бинов")
+	id := flag.String("id", "", "Идентификатор бина")
+	filePath := flag.String("file", "", "Путь к файлу")
+	name := flag.String("name", "", "Название бина")
 
-	storage := storage.NewStorage(fp)
+	flag.Parse()
 
-	bin := bins.NewBin("1", true, "test")
-	storage.AddBin(*bin)
+	api := api.NewApi(config.NewConfig())
+	storage := storage.NewStorage()
 
-	err = storage.SaveBinList()
-
-	if err != nil {
-		fmt.Println(err)
-		return
+	if *createOperation {
+		bin := api.CreateBin(*filePath, *name)
+		storage.BinList.AddToList(bin)
+		storage.SetList(&storage.BinList)
+	} else if *getOperation {
+		bin := api.GetBin(*id)
+		bin.OutputBin()
+	} else if *deleteOperation {
+		if api.DeleteBin(*id) {
+			storage.DeleteFromList(*id)
+			fmt.Println("Bin successfully deleted")
+		}
+	} else if *listOperation {
+		storage.BinList.OutputList()
+	} else if *updateOperation {
+		if api.UpdateBin(*filePath, *id) {
+			fmt.Println("Bin successfully updated")
+		}
 	}
 }
